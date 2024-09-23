@@ -1,5 +1,6 @@
+import { Model } from 'mongoose';
 
-export interface User {
+export interface IUser extends Document {
   userId: number;
   username: string;
   password: string;
@@ -10,6 +11,11 @@ export interface User {
   hobbies: string[];
   address: Address;
   orders: Order[];
+  dateCreated: Date;
+  createdBy: string;
+  dateModified?: Date;
+  modifiedBy?: string;
+  isDeleted?: boolean;
 }
 
 export interface FullName {
@@ -29,4 +35,7 @@ export interface Order {
   quantity: number;
 }
 
-
+// * This interface is used to define the static methods of the User model
+export interface UserModel extends Model<IUser> {
+  isUserExists: (userId?: number, username?: string) => Promise<boolean>;
+}

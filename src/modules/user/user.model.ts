@@ -1,5 +1,7 @@
-import { model, Schema } from 'mongoose';
-import { User } from './user.interface';
+import { CallbackWithoutResultAndOptionalError, model, Schema } from 'mongoose';
+import { IUser, UserModel } from './user.interface';
+import bcrypt from 'bcrypt';
+import config from '../../config';
 
 const FullNameSchema = new Schema({
   firstName: {
@@ -94,6 +96,65 @@ export const UserSchema = new Schema({
     type: [OrderSchema],
     default: [],
   },
+  dateCreated: {
+    type: Date,
+    default: Date.now,
+  },
+  createdBy: {
+    type: String,
+    default: 'Admin',
+  },
+  dateModified: {
+    type: Date,
+    optional: true,
+  },
+  modifiedBy: {
+    type: String,
+    optional: true,
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-export const UserModel = model<User>('User', UserSchema);
+// * Pre save hook to hash password and capitalize first letter of first and last name
+UserSchema.pre(
+  'save',
+  async function (next: CallbackWithoutResultAndOptionalError) {
+    this.fullName.firstName =
+      this.fullName.firstName.charAt(0).toUpperCase() +
+      this.fullName.firstName.slice(1).toLowerCase();
+    this.fullName.lastName =
+      this.fullName.lastName.charAt(0).toUpperCase() +
+      this.fullName.lastName.slice(1).toLowerCase();
+
+    this.password = await bcrypt.hash(this.password, config.bcrypt_salt_round);
+
+    next();
+  }
+);
+
+// * Post save hook to hide password
+UserSchema.post(
+  'save',
+  function (doc: IUser, next: CallbackWithoutResultAndOptionalError) {
+    console.log('A new user was created');
+    doc.password = '********';
+    next();
+  }
+);
+
+// * Static method to check if user exists
+UserSchema.statics.isUserExists = async function (
+  userId?: number,
+  username?: string
+): Promise<boolean> {
+  if (!userId && !username) {
+    throw new Error('Either userId or username must be provided');
+  }
+
+  return await this.exists({ $or: [{ userId }, { username }] });
+};
+
+export const User = model<IUser, UserModel>('User', UserSchema);

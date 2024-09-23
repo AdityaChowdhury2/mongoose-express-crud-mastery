@@ -55,7 +55,7 @@ const getMongoUri = (): string => {
   if (!DB_USER || !DB_PASSWORD || !DB_URI) {
     throw new Error('DB_USER, DB_PASSWORD, DB_URI are required');
   }
-  return `${DB_URI.replace('<username>', DB_USER).replace('<password>', DB_PASSWORD)}`;
+  return `${DB_URI.replace('<username>', DB_USER).replace('<db_password>', DB_PASSWORD)}`;
 };
 
 export default deepFreeze({
@@ -64,5 +64,7 @@ export default deepFreeze({
     // uri: getMySqlUri(),
     uri: getMongoUri(),
   },
-  bcrypt_salt_round: process.env.BCRYPT_SALT_ROUND as string,
+  bcrypt_salt_round: process.env.BCRYPT_SALT_ROUND
+    ? +process.env.BCRYPT_SALT_ROUND
+    : 10,
 });
