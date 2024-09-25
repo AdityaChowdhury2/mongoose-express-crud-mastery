@@ -14,7 +14,7 @@ const createUser = async (user: IUser): Promise<ApiResponse<IUser>> => {
 
     return {
       success: true,
-      message: 'User created',
+      message: 'User created successfully',
       data: response,
     };
   } catch (error) {
@@ -38,8 +38,36 @@ const getUsers = async (): Promise<ApiResponse<IUser[]>> => {
     }
     return {
       success: true,
-      message: 'Users found',
+      message: 'Users fetched successfully!',
       data: users,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: 'Something went wrong',
+      error,
+    };
+  }
+};
+
+const getUserByUserId = async (userId: number): Promise<ApiResponse<IUser>> => {
+  try {
+    const isUserExists = await User.isUserExists(userId);
+    if (!isUserExists) {
+      return {
+        success: false,
+        message: 'User not found',
+        error: {
+          code: 404,
+          message: 'User not found',
+        },
+      };
+    }
+    const user = (await User.findOne({ userId }).exec()) as IUser;
+    return {
+      success: true,
+      message: 'User fetched successfully!',
+      data: user,
     };
   } catch (error) {
     return {
@@ -53,4 +81,5 @@ const getUsers = async (): Promise<ApiResponse<IUser[]>> => {
 export const UserService = {
   getUsers,
   createUser,
+  getUserByUserId,
 };

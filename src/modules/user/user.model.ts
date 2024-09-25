@@ -135,12 +135,32 @@ UserSchema.pre(
   }
 );
 
+// * Transform the output to hide password
+UserSchema.set('toJSON', {
+  transform: function (_, ret: Record<string, IUser>) {
+    delete ret.password;
+
+    Object.keys(ret).forEach((key) => {
+      // * remove empty strings, and undefined values
+      if (!ret[key]) {
+        delete ret[key];
+      }
+
+      // * remove empty arrays
+      if (Array.isArray(ret[key]) && ret[key].length === 0) {
+        delete ret[key];
+      }
+    });
+
+    return ret;
+  },
+});
+
 // * Post save hook to hide password
 UserSchema.post(
   'save',
   function (doc: IUser, next: CallbackWithoutResultAndOptionalError) {
-    console.log('A new user was created');
-    doc.password = '********';
+    // doc.password = '********';
     next();
   }
 );

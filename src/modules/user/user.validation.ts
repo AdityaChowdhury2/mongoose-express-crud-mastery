@@ -60,7 +60,10 @@ export const UserValidationSchema = z.object({
     .transform((val) => new Date(val))
     .default(new Date()),
   createdBy: z.string().default(''),
-  dateModified: z.date().optional(),
+  dateModified: z
+    .union([z.date(), z.string()])
+    .transform((val) => new Date(val))
+    .optional(),
   modifiedBy: z.string().optional(),
   isDeleted: z.boolean().default(false),
 });

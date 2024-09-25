@@ -46,7 +46,26 @@ const getUsers = async (req: Request, res: Response) => {
   }
 };
 
+const getUserByUserId = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const response = await UserService.getUserByUserId(Number(userId));
+    if (!response.success) {
+      return res.status(404).send(response);
+    } else {
+      return res.status(200).send(response);
+    }
+  } catch (error) {
+    return res.status(500).send({
+      success: false,
+      message: 'Something went wrong',
+      error,
+    });
+  }
+};
+
 export const UserController = {
   getUsers,
   createUser,
+  getUserByUserId,
 };

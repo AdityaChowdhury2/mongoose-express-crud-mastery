@@ -11,6 +11,6 @@ app.use(cors());
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.use('/api/v1/users', UserRoutes);
+app.use('/api/users', UserRoutes);
 
 export default app;
