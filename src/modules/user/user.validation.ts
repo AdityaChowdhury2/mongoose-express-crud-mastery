@@ -19,7 +19,7 @@ const AddressValidationSchema = z.object({
   country: z.string().trim().min(1, 'Country is required'),
 });
 
-const OrderValidationSchema = z.object({
+export const OrderValidationSchema = z.object({
   productName: z.string().trim().min(1, 'ProductName is required'),
   price: z.number({
     invalid_type_error: 'Price should be a number',

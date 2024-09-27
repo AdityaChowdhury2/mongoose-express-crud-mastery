@@ -1,5 +1,5 @@
 import { ApiResponse } from '../../shared/models/ApiResponse';
-import { IUser } from './user.interface';
+import { IOrder, IUser } from './user.interface';
 import { User } from './user.model';
 
 /**
@@ -137,9 +137,49 @@ const updateUserById = async (
   }
 };
 
+const addNewProductInOrder = async (userId: number, orderData: IOrder) => {
+  try {
+    const isUserExists = await User.isUserExists(userId);
+
+    if (!isUserExists) {
+      return {
+        success: false,
+        message: 'User not found',
+        error: {
+          code: 404,
+          message: 'User not found',
+        },
+      };
+    } else {
+      const user = await User.updateOne(
+        {
+          userId: userId,
+        },
+        {
+          $push: { orders: orderData },
+        },
+        { new: true, upsert: false }
+      ).exec();
+
+      return {
+        success: true,
+        message: 'Order added successfully',
+        data: user,
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: 'Something went wrong',
+      error,
+    };
+  }
+};
+
 export const UserService = {
   getUsers,
   createUser,
   getUserByUserId,
   updateUserById,
+  addNewProductInOrder,
 };

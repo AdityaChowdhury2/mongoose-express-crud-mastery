@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { UserService } from './user.service';
-import { UserValidationSchema } from './user.validation';
-import { IUser } from './user.interface';
+import { OrderValidationSchema, UserValidationSchema } from './user.validation';
+import { IOrder, IUser } from './user.interface';
 import { ApiResponse } from '../../shared/models/ApiResponse';
 
 /**
@@ -108,9 +108,34 @@ const updateUserByUserId = async (req: Request, res: Response) => {
   }
 };
 
+const addNewProductInOrder = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  const { order: OrderData } = req.body;
+
+  try {
+    const zodParsedOrder = OrderValidationSchema.parse(OrderData);
+    const response = await UserService.addNewProductInOrder(
+      Number(userId),
+      zodParsedOrder as IOrder
+    );
+    if (!response.success) {
+      return res.status(404).send(response);
+    } else {
+      return res.status(200).send(response);
+    }
+  } catch (error) {
+    return res.status(500).send({
+      success: false,
+      message: 'Something went wrong',
+      error,
+    });
+  }
+};
+
 export const UserController = {
   getUsers,
   createUser,
   getUserByUserId,
   updateUserByUserId,
+  addNewProductInOrder,
 };
