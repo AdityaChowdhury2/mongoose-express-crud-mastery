@@ -8,7 +8,7 @@ async function main() {
       throw new Error('Database URI is not defined');
     }
     await mongoose.connect(config.db.uri);
-
+    // console.log('Database connected successfully');
     app.listen(config.port, () => {
       console.log(`Server is running on port ${config.port}`);
     });

@@ -14,10 +14,8 @@ import { ApiResponse, Error } from '../../shared/models/ApiResponse';
 const createUser = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { user: UserData } = req.body;
-    console.log(UserData);
-
     const zodParsedUser = UserValidationSchema.parse(UserData);
-    console.log('zodParsedUser', zodParsedUser);
+
     const response: ApiResponse<IUser> = await UserService.createUser(
       zodParsedUser as IUser
     );
@@ -27,7 +25,6 @@ const createUser = async (req: Request, res: Response): Promise<Response> => {
       return res.status(201).send(response);
     }
   } catch (error) {
-    console.log(error);
     return res.status(500).send({
       success: false,
       message: 'Something went wrong',
@@ -95,7 +92,10 @@ const getUserByUserId = async (
  * @param {Response} res - The response object, used to send the response back to the client.
  * @returns {Promise<Response>} - The response object with the status and data.
  */
-const updateUserByUserId = async (req: Request, res: Response): Promise<Response> => {
+const updateUserByUserId = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   const { userId } = req.params;
   const { user: UserData } = req.body;
   try {
@@ -125,7 +125,10 @@ const updateUserByUserId = async (req: Request, res: Response): Promise<Response
  * @param {Response} res - The response object, used to send the response back to the client.
  * @returns {Promise<Response>} - The response object with the status and data.
  */
-const addNewProductInOrder = async (req: Request, res: Response): Promise<Response> => {
+const addNewProductInOrder = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   const { userId } = req.params;
   const { order: OrderData } = req.body;
 
@@ -157,7 +160,10 @@ const addNewProductInOrder = async (req: Request, res: Response): Promise<Respon
  * @param {Response} res - The response object, used to send the response back to the client.
  * @returns {Promise<Response>} - The response object with the status and data.
  */
-const getAllOrdersByUserId = async (req: Request, res: Response): Promise<Response> => {
+const getAllOrdersByUserId = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   const { userId } = req.params;
   try {
     const response = await UserService.getAllOrdersByUserId(Number(userId));

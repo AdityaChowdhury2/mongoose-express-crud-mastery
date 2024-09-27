@@ -40,7 +40,6 @@ const createUser = async (user: IUser): Promise<ApiResponse<IUser>> => {
 const getUsers = async (): Promise<ApiResponse<IUser[]>> => {
   try {
     const users = await User.find().exec();
-    console.log(users);
     if (users.length === 0) {
       return {
         success: false,
