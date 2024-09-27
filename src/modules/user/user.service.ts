@@ -137,7 +137,18 @@ const updateUserById = async (
   }
 };
 
-const addNewProductInOrder = async (userId: number, orderData: IOrder) => {
+/**
+ * Adds a new product in the user's order.
+ *
+ * @param {number} userId - The user ID to add the order to.
+ * @param {IOrder} orderData - The order data to be added.
+ * @returns {Promise<ApiResponse<null>>} - The response object with the status and data.
+ */
+
+const addNewProductInOrder = async (
+  userId: number,
+  orderData: IOrder
+): Promise<ApiResponse<null>> => {
   try {
     const isUserExists = await User.isUserExists(userId);
 
@@ -151,20 +162,24 @@ const addNewProductInOrder = async (userId: number, orderData: IOrder) => {
         },
       };
     } else {
-      const user = await User.updateOne(
+      await User.findOneAndUpdate(
         {
           userId: userId,
         },
         {
           $push: { orders: orderData },
         },
-        { new: true, upsert: false }
+        {
+          new: true,
+          upsert: false,
+          runValidators: true,
+        }
       ).exec();
 
       return {
         success: true,
         message: 'Order added successfully',
-        data: user,
+        data: null,
       };
     }
   } catch (error) {
@@ -176,10 +191,92 @@ const addNewProductInOrder = async (userId: number, orderData: IOrder) => {
   }
 };
 
+/**
+ * Gets the total price of all orders by user ID.
+ *
+ * @param {number} userId - The user ID to get the total price of all orders.
+ * @returns {Promise<ApiResponse<{ totalPrice: number }>>} - The response object with the status and data.
+ */
+const getAllOrdersByUserId = async (
+  userId: number
+): Promise<ApiResponse<{ orders: IOrder[] }>> => {
+  try {
+    const isUserExists = await User.isUserExists(userId);
+
+    if (!isUserExists) {
+      return {
+        success: false,
+        message: 'User not found',
+        error: {
+          code: 404,
+          message: 'User not found',
+        },
+      };
+    } else {
+      const user = (await User.findOne({ userId }).exec()) as IUser;
+
+      return {
+        success: true,
+        message: 'Orders fetched successfully',
+        data: { orders: user.orders },
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: 'Something went wrong',
+      error,
+    };
+  }
+};
+
+/**
+ * Gets the total price of all orders by user ID.
+ *
+ * @param {number} userId - The user ID to get the total price of all orders.
+ * @returns {Promise<ApiResponse<{ totalPrice: number }>>} - The response object with the status and data.
+ */
+const getTotalPriceOfAllOrdersByUserId = async (
+  userId: number
+): Promise<ApiResponse<{ totalPrice: number }>> => {
+  try {
+    const isUserExists = await User.isUserExists(userId);
+
+    if (!isUserExists) {
+      return {
+        success: false,
+        message: 'User not found',
+        error: {
+          code: 404,
+          message: 'User not found',
+        },
+      };
+    } else {
+      const user = (await User.findOne({ userId }).exec()) as IUser;
+      const totalPrice = user.orders.reduce(
+        (acc, order) => acc + order.price,
+        0
+      );
+      return {
+        success: true,
+        message: 'Total price fetched successfully',
+        data: { totalPrice },
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: 'Something went wrong',
+      error,
+    };
+  }
+};
 export const UserService = {
   getUsers,
   createUser,
   getUserByUserId,
   updateUserById,
   addNewProductInOrder,
+  getAllOrdersByUserId,
+  getTotalPriceOfAllOrdersByUserId,
 };
